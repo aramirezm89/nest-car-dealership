@@ -5,14 +5,18 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CarsService } from './cars.service';
-import type { Car } from './cars.service';
+import type { Car } from './interfaces';
+import { CreateCarDto } from './dto/create-car.dto';
 
 @Controller('cars')
+@UsePipes(ValidationPipe)
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
@@ -25,7 +29,7 @@ export class CarsController {
   }
 
   @Get(':id')
-  getCarById(@Param('id', ParseIntPipe) id: number): {
+  getCarById(@Param('id', ParseUUIDPipe) id: string): {
     car: Car;
     code: number;
   } {
@@ -41,8 +45,8 @@ export class CarsController {
   }
 
   @Post()
-  createCar(@Body() body: Car): { car: Car; code: number } {
-    const newCar = this.carsService.createCar(body);
+  createCar(@Body() creteCarDto: CreateCarDto): { car: Car; code: number } {
+    const newCar = this.carsService.createCar(creteCarDto);
     return {
       car: newCar,
       code: 201,
@@ -50,7 +54,7 @@ export class CarsController {
   }
 
   @Delete(':id')
-  deleteCar(@Param('id', ParseIntPipe) id: number): {
+  deleteCar(@Param('id', ParseUUIDPipe) id: string): {
     code: number;
     cars: Car[];
   } {
@@ -67,7 +71,7 @@ export class CarsController {
 
   @Patch(':id')
   updateNameCar(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() body: Car,
   ): { car: Car; code: number } {
     const car = this.carsService.findCarById(id);

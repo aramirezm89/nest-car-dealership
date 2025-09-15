@@ -1,39 +1,42 @@
 import { Injectable } from '@nestjs/common';
+import { Car } from './interfaces';
+import { v4 as uuidv4 } from 'uuid';
+import { CreateCarDto } from './dto/create-car.dto';
 
-export interface Car {
-  id: number;
-  brand: string;
-  model: string;
-}
 @Injectable()
 export class CarsService {
   private cars: Car[] = [
-    { id: 1, brand: 'chevrolet', model: 'camaro' },
-    { id: 2, brand: 'toyota', model: 'camry' },
-    { id: 3, brand: 'hyundai', model: 'accent' },
+    { id: uuidv4(), brand: 'chevrolet', model: 'camaro' },
+    { id: uuidv4(), brand: 'toyota', model: 'camry' },
+    { id: uuidv4(), brand: 'hyundai', model: 'accent' },
   ];
 
   findAllCars(): Car[] {
     return this.cars;
   }
 
-  findCarById(id: number): Car | undefined {
+  findCarById(id: string): Car | undefined {
     const car = this.cars.find((car) => car.id === id);
 
     return car;
   }
 
-  createCar(car: Car): Car {
-    this.cars.push(car);
-    return car;
+  createCar(carDTO: CreateCarDto): Car {
+    const newCar = {
+      id: uuidv4(),
+      brand: carDTO.brand,
+      model: carDTO.model,
+    };
+    this.cars.push(newCar);
+    return newCar;
   }
 
-  deleteCar(id: number): Car[] {
+  deleteCar(id: string): Car[] {
     this.cars = this.cars.filter((car) => car.id !== id);
     return this.cars;
   }
 
-  updateBrandCar(id: number, brand: string): Car {
+  updateBrandCar(id: string, brand: string): Car {
     const car = this.findCarById(id);
 
     if (!car) {
