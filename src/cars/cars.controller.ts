@@ -14,6 +14,7 @@ import {
 import { CarsService } from './cars.service';
 import type { Car } from './interfaces';
 import { CreateCarDto } from './dto/create-car.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 @Controller('cars')
 @UsePipes(ValidationPipe)
@@ -54,31 +55,20 @@ export class CarsController {
   }
 
   @Delete(':id')
-  deleteCar(@Param('id', ParseUUIDPipe) id: string): {
-    code: number;
-    cars: Car[];
-  } {
-    const car = this.carsService.findCarById(id);
-    if (!car) {
-      throw new NotFoundException(`Car with index ${id} not found`);
-    }
-    const cars = this.carsService.deleteCar(id);
-    return {
-      cars,
-      code: 200,
-    };
+  deleteCar(@Param('id', ParseUUIDPipe) id: string) {
+    return this.carsService.deleteCar(id);
   }
 
   @Patch(':id')
-  updateNameCar(
+  updateCar(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: Car,
+    @Body() updateCarDto: UpdateCarDto,
   ): { car: Car; code: number } {
     const car = this.carsService.findCarById(id);
     if (!car) {
       throw new NotFoundException(`Car with index ${id} not found`);
     }
-    const carUpdated = this.carsService.updateBrandCar(id, body.brand);
+    const carUpdated = this.carsService.updateBrandCar(id, updateCarDto);
     return {
       car: carUpdated,
       code: 200,

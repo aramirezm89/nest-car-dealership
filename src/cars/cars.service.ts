@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Car } from './interfaces';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateCarDto } from './dto/create-car.dto';
+import { CreateCarDto, UpdateCarDto } from './dto';
 
 @Injectable()
 export class CarsService {
@@ -17,34 +21,41 @@ export class CarsService {
 
   findCarById(id: string): Car | undefined {
     const car = this.cars.find((car) => car.id === id);
+    if (!car) {
+      throw new NotFoundException(`Car with index ${id} not found`);
+    }
 
     return car;
   }
 
   createCar(carDTO: CreateCarDto): Car {
-    const newCar = {
+    const newCar: Car = {
       id: uuidv4(),
-      brand: carDTO.brand,
-      model: carDTO.model,
+      ...carDTO,
     };
     this.cars.push(newCar);
     return newCar;
   }
 
-  deleteCar(id: string): Car[] {
+  deleteCar(id: string): void {
+    this.findCarById(id);
+
     this.cars = this.cars.filter((car) => car.id !== id);
-    return this.cars;
   }
 
-  updateBrandCar(id: string, brand: string): Car {
+  updateBrandCar(id: string, updateCarDto: UpdateCarDto): Car {
     const car = this.findCarById(id);
 
-    if (!car) {
-      throw new Error(`Car with index ${id} not found`);
+    if (updateCarDto.id && updateCarDto.id !== id) {
+      throw new BadRequestException('Id cannot be updated');
     }
+    // Filtrar propiedades undefined para evitar sobrescribir con valores vacíos
+    const updateData = Object.fromEntries(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Object.entries(updateCarDto).filter(([_, value]) => value !== undefined),
+    );
+    Object.assign(car!, updateData);
 
-    car.brand = brand;
-
-    return car;
+    return car!;
   }
 }
