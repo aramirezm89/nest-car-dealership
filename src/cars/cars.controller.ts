@@ -68,7 +68,7 @@ export class CarsController {
     if (!car) {
       throw new NotFoundException(`Car with index ${id} not found`);
     }
-    const carUpdated = this.carsService.updateBrandCar(id, updateCarDto);
+    const carUpdated = this.carsService.updateCar(id, updateCarDto);
     return {
       car: carUpdated,
       code: 200,
